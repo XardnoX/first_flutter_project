@@ -24,24 +24,27 @@ class FuelTrackerScreen extends StatefulWidget {
 }
 
 class _FuelTrackerScreenState extends State<FuelTrackerScreen> {
-  final TextEditingController _datumController = TextEditingController();
-  final TextEditingController _tachometrController = TextEditingController();
-  final TextEditingController _mnozstviPalivaController = TextEditingController();
-  final TextEditingController _cenaZaLitrController = TextEditingController();
-  final TextEditingController _poznamkyController = TextEditingController();
+//  final TextEditingController datumController = TextEditingController();
+  final TextEditingController tachometrController = TextEditingController();
+  final TextEditingController mnozstviPalivaController = TextEditingController();
+  final TextEditingController cenaZaLitrController = TextEditingController();
+  final TextEditingController poznamkyController = TextEditingController();
 
-  final List<Map<String, dynamic>> _entries = [];
+  final List<Map<String, dynamic>> entries = [];
 
-  void _addEntry() {
-    final datum = _datumController.text;
-    final tachometr = double.tryParse(_tachometrController.text);
-    final mnozstviPaliva = double.tryParse(_mnozstviPalivaController.text);
-    final cenaZaLitr = double.tryParse(_cenaZaLitrController.text);
-    final poznamky = _poznamkyController.text;
+  void addEntry() {
+    DateTime now = DateTime.now();
+//  final datum = datumController.text;
+    final tachometr = double.tryParse(tachometrController.text);
+    final mnozstviPaliva = double.tryParse(mnozstviPalivaController.text);
+    final cenaZaLitr = double.tryParse(cenaZaLitrController.text);
+    final poznamky = poznamkyController.text;
 
-    if (datum.isNotEmpty && tachometr != null && mnozstviPaliva != null && cenaZaLitr != null) {
+    DateTime datum = DateTime(now.year, now.month, now.day, now.hour);
+
+    if (tachometr != null && mnozstviPaliva != null && cenaZaLitr != null) {
       setState(() {
-        _entries.add({
+        entries.add({
           'datum': datum,
           'tachometr': tachometr,
           'mnozstviPaliva': mnozstviPaliva,
@@ -49,7 +52,7 @@ class _FuelTrackerScreenState extends State<FuelTrackerScreen> {
           'poznamky': poznamky,
         });
       });
-      _clearInputs();
+      clearInputs();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Vyplňte prosím všechna pole správně.'))
@@ -57,23 +60,23 @@ class _FuelTrackerScreenState extends State<FuelTrackerScreen> {
     }
   }
 
-  void _clearInputs() {
-    _datumController.clear();
-    _tachometrController.clear();
-    _mnozstviPalivaController.clear();
-    _cenaZaLitrController.clear();
-    _poznamkyController.clear();
+  void clearInputs() {
+//    datumController.clear();
+    tachometrController.clear();
+    mnozstviPalivaController.clear();
+    cenaZaLitrController.clear();
+    poznamkyController.clear();
   }
 
-  double _calculateAverageConsumption() {
-    if (_entries.length < 2) return 0;
+  double vypocetPrumerneSpotreby() {
+    if (entries.length < 2) return 0;
 
     double totalDistance = 0;
     double totalFuel = 0;
 
-    for (int i = 1; i < _entries.length; i++) {
-      totalDistance += _entries[i]['tachometr'] - _entries[i - 1]['tachometr'];
-      totalFuel += _entries[i]['mnozstviPaliva'];
+    for (int i = 1; i < entries.length; i++) {
+      totalDistance += entries[i]['tachometr'] - entries[i - 1]['tachometr'];
+      totalFuel += entries[i]['mnozstviPaliva'];
     }
 
     return totalFuel > 0 ? (totalFuel / totalDistance) * 100 : 0;
@@ -89,51 +92,54 @@ class _FuelTrackerScreenState extends State<FuelTrackerScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(
-              controller: _datumController,
+        /*    TextField(
+              controller: datumController,
               decoration: InputDecoration(labelText: 'datum'),
             ),
+
+         */
+
             TextField(
-              controller: _tachometrController,
+              controller: tachometrController,
               decoration: InputDecoration(labelText: 'tachometr (km)'),
               keyboardType: TextInputType.number,
             ),
             TextField(
-              controller: _mnozstviPalivaController,
+              controller: mnozstviPalivaController,
               decoration: InputDecoration(labelText: 'množství paliva (l)'),
               keyboardType: TextInputType.number,
             ),
             TextField(
-              controller: _cenaZaLitrController,
+              controller: cenaZaLitrController,
               decoration: InputDecoration(labelText: 'Cena za litr'),
               keyboardType: TextInputType.number,
             ),
             TextField(
-              controller: _poznamkyController,
+              controller: poznamkyController,
               decoration: InputDecoration(labelText: 'poznámky'),
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _addEntry,
+              onPressed: addEntry,
               child: Text('přidat'),
             ),
             SizedBox(height: 16),
             Text(
-              'Průměrná spotřeba: ${_calculateAverageConsumption().toStringAsFixed(2)} l/100km',
+              'Průměrná spotřeba: ${vypocetPrumerneSpotreby().toStringAsFixed(2)} l/100km',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
-                itemCount: _entries.length,
+                itemCount: entries.length,
                 itemBuilder: (context, index) {
-                  final entry = _entries[index];
+                  final entry = entries[index];
                   return Card(
                     margin: EdgeInsets.symmetric(vertical: 8),
                     child: ListTile(
                       title: Text('Datum: ${entry['datum']}'),
                       subtitle: Text(
-                          'stav tachometru: ${entry['tachometr']} km \nmnožství paliva: ${entry['mnozstviPaliva']} L\n Cena: ${entry['cenaZaLitr']} per L \nPoznámky: ${entry['poznamky']}'),
+                          'stav tachometru: ${entry['tachometr']} km \nmnožství paliva: ${entry['mnozstviPaliva']} L\n Cena: ${entry['cenaZaLitr']} za L \nPoznámky: ${entry['poznamky']}'),
                     ),
                   );
                 },
