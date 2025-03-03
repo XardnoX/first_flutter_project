@@ -67,15 +67,6 @@ class _FuelTrackerScreenState extends State<FuelTrackerScreen> {
     poznamkyController.clear();
   }
 
-  double vypocetCeny(){
-    double totalFuel = 0;
-    double totalCena = 0;
-    for (int i = 1; i < entries.length; i++) {
-      totalFuel += entries[i]['mnozstviPaliva'];
-      totalCena += entries[i]['cenaZaLitr'];
-    }
-    return (totalFuel * totalCena);
-    }
 
   double vypocetPrumerneSpotreby() {
     if (entries.length < 2) return 0;
@@ -148,7 +139,7 @@ class _FuelTrackerScreenState extends State<FuelTrackerScreen> {
                     child: ListTile(
                       title: Text('Datum: ${entry['datum']}'),
                       subtitle: Text(
-                          'stav tachometru: ${entry['tachometr']} km \nmnožství paliva: ${entry['mnozstviPaliva']} L\nCena: ${entry['cenaZaLitr']} za L \nCelková cena za tankování ${vypocetCeny()}\nPoznámky: ${entry['poznamky']}'),
+                          'stav tachometru: ${entry['tachometr']} km \nmnožství paliva: ${entry['mnozstviPaliva']} L\nCena: ${entry['cenaZaLitr']} za L \nCelková cena za tankování ${(entry['mnozstviPaliva'] * entry['cenaZaLitr'])} Kč\nPoznámky: ${entry['poznamky']}'),
                     ),
                   );
                 },
